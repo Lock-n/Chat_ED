@@ -69,9 +69,9 @@ public class Sala
     	return nicks;
     }
     
-    public String[] getNicks_S() throws Exception {
+    public String[] getNicks_S() {
     	if (usuarios.empty())
-    		throw new Exception("Nada a ser retornado");
+    		return null;
     	
     	String[] nicks = new String[qtdUsuarios];
     	

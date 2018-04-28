@@ -82,7 +82,6 @@ public class SeletorDeSala extends JFrame {
 		
 		txtNick = new JTextField();
 		txtNick.setBounds(119, 22, 169, 20);
-		txtNick.setText("nick");
 		panel_1.add(txtNick);
 		txtNick.setColumns(10);
 		

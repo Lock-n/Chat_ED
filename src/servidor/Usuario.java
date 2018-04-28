@@ -60,11 +60,6 @@ public class Usuario
 	}
 
 
-	public void setNick(String nick) {
-		this.nick = nick;
-	}
-
-
 	// metodos para desconectar
 	
 	// recebe do usuario, usando this.receptor
@@ -89,6 +84,15 @@ public class Usuario
     	
     	transmissor.writeObject(mensagem);
     }
+
+
+	public void setNick(String nick) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		if (nick == null)
+    		throw new IllegalArgumentException("Argumento nulo");
+		
+		this.nick = nick;
+	}
 
     // metodos obrigatorios
 }

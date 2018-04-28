@@ -35,6 +35,7 @@ public class TratadorDeConexao extends Thread
            // mensagem, ou "MSG"+"REMENTENTE"+"TEXTO"
            Comando cmd = this.usuario.recebe();
 
+           System.out.println("CMD:" + cmd.getCmd());
            // tratar o "SAI" (parar a thread e tirar da sala) ou
            // (destinatario pode ser 1 especifico ou TODOS) e
            if (cmd.getCmd().equals("USUARIO_SAI")) {
@@ -102,6 +103,22 @@ public class TratadorDeConexao extends Thread
            else if (cmd.getCmd().equals("USUARIO_SAI")) {
         	   this.pare();
            }
+           else if (cmd.getCmd().equals("NICK_USUARIO")) {
+        	   try {
+        		   this.setNick((String) cmd.getComplementos()[0]);
+        	   }
+        	   catch (IllegalArgumentException iae) {
+        		   try {
+					usuario.envia(new Comando("SERVIDOR_NICK_INVALIDO", null));
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	   }
+           }
         }
     }
 
@@ -130,6 +147,35 @@ public class TratadorDeConexao extends Thread
 			e.printStackTrace();
 		}
         
+        Boolean b = false;
+        String n = this.usuario.getNick();
+        for (;;) {
+        	try {
+            	this.setNick(n);
+            	b = true;
+            }
+            catch (IllegalArgumentException iae) {
+            	try {
+    				usuario.envia(new Comando("SERVIDOR_NICK_INVALIDO", null));
+    				
+    				Comando c = usuario.recebe();
+    				
+    				if (c.getCmd().equals("NICK_USUARIO"))
+    					n = (String) c.getComplementos()[0];
+    				
+    			} catch (IllegalArgumentException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+            }
+        	if (b)
+        		break;
+        }
+        
+        
         this.sala.entra (this.usuario);
         
         try {
@@ -146,5 +192,26 @@ public class TratadorDeConexao extends Thread
 			e.printStackTrace();
 		}
     }
+    
+    public void setNick(String nick) throws IllegalArgumentException {
+		if (nick == null) {
+			throw new IllegalArgumentException("Argumento nulo");
+		}
+		
+		
+		String[] nicks = this.sala.getNicks_S();
+		
+		if (nicks == null) {
+			this.usuario.setNick(nick);
+			return;
+		}
+		
+		for (String n : nicks) {
+			if (n.equals(nick))
+				throw new IllegalArgumentException ("Nick existente na sala");
+		}
+		
+		this.usuario.setNick(nick);
+	}
     
 }

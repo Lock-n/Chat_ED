@@ -1,5 +1,6 @@
 package cliente;
 
+import servidor.Comando;
 import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,10 +42,11 @@ public class ClienteApp {
 	private JComboBox comboBox;
 	private JLabel lblNomeDaSala;
 	private JLabel lblNick;
-	static Socket conexao;
-	static ObjectOutputStream transmissor;
-	static ObjectInputStream receptor;
+	private static Socket conexao;
+	private static ObjectOutputStream transmissor;
+	private static ObjectInputStream receptor;
 	private JButton btnSair;
+	private static String IP;
 	/**
 	 * Launch the application.
 	 */
@@ -52,9 +54,11 @@ public class ClienteApp {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				
+				ClienteApp.IP = args[0];
+				
 				try {
 					//DEFINIR IP_SERVIDOR
-					final String IP_SERVIDOR = "177.220.18.12";
+					final String IP_SERVIDOR = ClienteApp.IP;
 										
 					ClienteApp.conexao = new Socket (IP_SERVIDOR, 12344);
 					ClienteApp.transmissor = new ObjectOutputStream(conexao.getOutputStream());
@@ -140,6 +144,32 @@ public class ClienteApp {
 									window.comboBox.removeItem(nick);
 									window.txtrChat.append("//" + nick + " saiu na sala.\n");
 								}
+								else
+								if (cmd.getCmd().equals("SERVIDOR_NICK_INVALIDO")) {
+									Controle.seletor_de_nick_fechado = false;
+									window.frmChat.setVisible(false);
+									
+									SeletorDeNick sn = new SeletorDeNick();
+									sn.setVisible(true);
+									
+									while (!(Controle.seletor_de_nick_fechado)) {
+										try {
+											Thread.sleep(50);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									}
+									
+									try {
+										transmissor.writeObject(new Comando ("NICK_USUARIO", new Serializable[] {SeletorDeSala.nick}));
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									
+									window.frmChat.setVisible(true);
+								}
 								
 							}
 						}
@@ -149,8 +179,10 @@ public class ClienteApp {
 					
 					
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Erro de conexão:" + e.getMessage());
+					//JOptionPane.showMessageDialog(null, "Erro de conexão:" + e.getMessage());
+					JOptionPane.showMessageDialog(null, "Erro de conexão com o servidor");
 					e.printStackTrace();
+					SeletorDeIP.main(null);
 				}
 			}
 		});
