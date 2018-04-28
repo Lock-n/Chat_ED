@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -79,10 +80,14 @@ public class ClienteApp {
 								} catch (ClassNotFoundException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
+									
+								} catch (SocketException se) {
+									Thread.currentThread().interrupt();
 								} catch (IOException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
+								
 								System.out.println("Comando recebido: " + cmd.getCmd());
 								
 								if (cmd.getCmd().equals("LISTA_DE_SALAS")) {
