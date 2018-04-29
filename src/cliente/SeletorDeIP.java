@@ -12,14 +12,23 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
 import net.miginfocom.swing.MigLayout;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
+import java.awt.Component;
 
-public class SeletorDeIP {
+public class SeletorDeIP extends JFrame{
 
-	private JFrame frmChat;
+	//JFrame frmChat;
+	private JButton btnHostear;
 	private JTextField txtIp;
+	private Boolean hostear;
+	static String IP;
 
 	/**
 	 * Launch the application.
@@ -29,7 +38,7 @@ public class SeletorDeIP {
 			public void run() {
 				try {
 					SeletorDeIP window = new SeletorDeIP();
-					window.frmChat.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -37,6 +46,10 @@ public class SeletorDeIP {
 		});
 	}
 
+	public Boolean getHostear() {
+		return this.hostear;
+	}
+	
 	/**
 	 * Create the application.
 	 */
@@ -48,58 +61,94 @@ public class SeletorDeIP {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmChat = new JFrame();
-		frmChat.setResizable(false);
-		frmChat.setTitle("Chat");
-		frmChat.setBounds(100, 100, 236, 160);
-		frmChat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmChat.getContentPane().setLayout(new MigLayout("", "[14px][183px][]", "[20px][23px][24px][23px][]"));
+		setResizable(false);
+		setTitle("Chat");
+		setBounds(100, 100, 236, 160);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		getContentPane().setLayout(new MigLayout("", "[14px][183px][]", "[20px][23px][24px][23px][]"));
 		
 		JLabel lblIp = new JLabel("IP:");
-		frmChat.getContentPane().add(lblIp, "cell 0 0,alignx right,aligny center");
+		getContentPane().add(lblIp, "cell 0 0,alignx right,aligny center");
 		
 		txtIp = new JTextField();
-		frmChat.getContentPane().add(txtIp, "cell 1 0,growx,aligny top");
+		getContentPane().add(txtIp, "cell 1 0,growx,aligny top");
 		txtIp.setColumns(10);
 		
 		JButton btnConectar = new JButton("Conectar");
 		btnConectar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!txtIp.getText().isEmpty()) {
-					ClienteApp.main(new String[] {txtIp.getText()});
-					SeletorDeIP.this.frmChat.dispose();
+					SeletorDeIP.this.hostear = false;
+					SeletorDeIP.IP = txtIp.getText();
+					/*try {
+						Conexao.conexao = new Socket(IP, 12344);
+						Conexao.transmissor = new ObjectOutputStream(Conexao.conexao.getOutputStream());
+						Conexao.receptor = new ObjectInputStream(Conexao.conexao.getInputStream());
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					//Lobby.main(new String[] {IP});
+					new Lobby().setVisible(true);
+					SeletorDeIP.this.dispose();*/
 				}
 			}
 		});
-		frmChat.getContentPane().add(btnConectar, "cell 1 1,growx,aligny top");
+		getContentPane().add(btnConectar, "cell 1 1,growx,aligny top");
 		
 		JPanel panel = new JPanel();
-		frmChat.getContentPane().add(panel, "cell 1 2,grow");
+		getContentPane().add(panel, "cell 1 2,grow");
 		
 		JLabel lblOu = new JLabel("OU");
 		panel.add(lblOu);
 		
-		JButton btnHostear = new JButton("Hostear");
+		btnHostear = new JButton("Hostear");
 		btnHostear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String IP = null;
+				SeletorDeIP.this.hostear = true;
 				try {
-					IP = (java.net.Inet4Address.getLocalHost().getHostAddress());
+					SeletorDeIP.IP = (java.net.Inet4Address.getLocalHost().getHostAddress());
 					//System.out.println(java.net.InetAddress.getLocalHost().getHostAddress());
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				new Thread() {
+				
+				/*new Thread() {
 					public void run() {
 						servidor.Servidor.main(null);
 					}
 				}.start();
-				ClienteApp.main(new String[] {IP});
-				SeletorDeIP.this.frmChat.dispose();
+				
+				try {
+					Conexao.conexao = new Socket(IP, 12344);
+					Conexao.transmissor = new ObjectOutputStream(Conexao.conexao.getOutputStream());
+					Conexao.receptor = new ObjectInputStream(Conexao.conexao.getInputStream());
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				SeletorDeIP.this.setVisible(false);
+				Controle.seletor_de_nick_fechado = false;
+				SeletorDeIP.this.dispose();
+				
+				SeletorDeNick sn = new SeletorDeNick();
+				sn.setVisible(true);
+				
+				new Lobby().setVisible(true);*/
+				
 			}
 		});
-		frmChat.getContentPane().add(btnHostear, "cell 1 3,growx,aligny top");
+		getContentPane().add(btnHostear, "cell 1 3,growx,aligny top");
+		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{txtIp, btnConectar, btnHostear, getContentPane(), lblIp, panel, lblOu}));
 	}
 
 }

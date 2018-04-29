@@ -1,5 +1,7 @@
 package servidor;
 import lists.*;
+
+import java.io.Serializable;
 import java.net.*;
 
 public class Salas
@@ -22,6 +24,13 @@ public class Salas
     public void      novaSala        (String nome) throws IllegalArgumentException {
     	if (nome == null)
     		throw new IllegalArgumentException("Argumento nulo");
+    	
+    	for (int i = 0; i <= qtd-1; i++) {
+    		Sala s = salas.get(i);
+    		if (s.getNome().equals(nome)) {
+    			return;
+    		}
+    	}
     	
     	salas.addAsLast(new Sala(nome));
     	qtd++;
@@ -138,6 +147,17 @@ public class Salas
     	}
     	
     	throw new NotFoundException("Sala não encontrada");
+    }
+    
+    public Serializable[] getInfoSalas() {
+    	Serializable[] ret = new Serializable[qtd];
+    	
+    	for (int i = 0; i <= qtd-1; i++) {
+    		Sala s = salas.get(i);
+    		ret[i] = new Serializable[] {s.nome, s.qtdUsuarios};
+    	}
+    	
+    	return ret;
     }
 
 	@Override

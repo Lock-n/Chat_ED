@@ -17,11 +17,11 @@ public class Usuario
     // interage atraves deles com o usuario para enviar a lista de
     // salas e obter a sala onde o usuario quer entrar, bem como o
     // seu nick, inicializando this.sala e this.nick
-    public Usuario (String[] nomSls, Socket conexao) throws IOException {
+    public Usuario (/*String[] nomSls,*/Socket conexao) throws IOException {
     	transmissor = new ObjectOutputStream(conexao.getOutputStream());
     	receptor = new ObjectInputStream(conexao.getInputStream());
     	
-    	transmissor.writeObject(new Comando("LISTA_DE_SALAS", new Serializable[]{nomSls}));
+    	//transmissor.writeObject(new Comando("LISTA_DE_SALAS", new Serializable[]{nomSls}));
     	
     	while (true) {
 	    	Comando info;
@@ -33,7 +33,7 @@ public class Usuario
 		    	
 		    	this.nick = (String)info.getComplementos()[0];
 		    	
-		    	this.nomeSala = (String)info.getComplementos()[1];
+		    	//this.nomeSala = (String)info.getComplementos()[1];
 		    	
 		    	break;
 			} catch (ClassNotFoundException e) {

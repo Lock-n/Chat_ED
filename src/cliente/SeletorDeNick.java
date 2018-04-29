@@ -13,9 +13,11 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
+import java.awt.Component;
 
 public class SeletorDeNick extends JFrame {
-
+	static String nick;
 	private JPanel contentPane;
 	private JTextField txtNick;
 
@@ -39,7 +41,7 @@ public class SeletorDeNick extends JFrame {
 	 * Create the frame.
 	 */
 	public SeletorDeNick() {
-		setTitle("Selecione outro nick");
+		setTitle("Selecione um nick");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 406, 128);
 		contentPane = new JPanel();
@@ -62,11 +64,12 @@ public class SeletorDeNick extends JFrame {
 		btnDefinir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Controle.seletor_de_nick_fechado = true;
-				SeletorDeSala.nick = txtNick.getText();
+				SeletorDeNick.nick = txtNick.getText();
 				SeletorDeNick.this.dispose();
 			}
 		});
 		contentPane.add(btnDefinir, "cell 2 2,alignx center");
+		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{txtNick, btnDefinir, lblNick, lblSeEstaJanela, contentPane}));
 	}
 
 }

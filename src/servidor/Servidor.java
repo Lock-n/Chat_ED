@@ -14,7 +14,7 @@ public class Servidor {
         ServerSocket pedido;
         
 		try {
-			pedido = new ServerSocket (12344);
+			pedido = new ServerSocket (12345);
 		} catch (IOException e) {
 			System.out.println("Erro na inicialização do servidor:");
 			System.out.println(e.getMessage());
@@ -50,6 +50,7 @@ public class Servidor {
             Socket conexao;
 			try {
 				conexao = pedido.accept();
+				System.out.println("SERVER: Cliente conectou");
 				new TratadorDeConexao (salas, conexao).start();
 			} catch (Exception e) {
 				System.out.println("Erro na inicialização de uma conexão:");
