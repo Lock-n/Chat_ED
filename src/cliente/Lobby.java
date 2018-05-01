@@ -1,35 +1,18 @@
 package cliente;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormSpecs;
-import javax.swing.JTextField;
-import javax.swing.JList;
-import java.awt.GridLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.FlowLayout;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import net.miginfocom.swing.MigLayout;
 import servidor.Comando;
@@ -52,12 +35,8 @@ public class Lobby extends JFrame {
 	private JPanel contentPane;
 	static String nick;
 	static String nome_sala;
-	//static Thread t_conexao;
 	private JTable tblLobby;
-	private static Socket conexao;
 	private JScrollPane scrollPane;
-	/*private static ObjectInputStream receptor;
-	private static ObjectOutputStream transmissor;*/
 
 	/**
 	 * Launch the application.
@@ -138,8 +117,8 @@ public class Lobby extends JFrame {
 		JButton btnEntrar = new JButton("Entrar");
 		btnEntrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TableModel tm = Lobby.this.getTblLobby().getModel();
-				String nome__sala = (String)tm.getValueAt(Lobby.this.getTblLobby().getSelectedRow(), 0);
+				TableModel tm = Lobby.this.tblLobby.getModel();
+				String nome__sala = (String)tm.getValueAt(Lobby.this.tblLobby.getSelectedRow(), 0);
 				try {
 					Conexao.transmissor.writeObject(new Comando("L_ENTRAR_SALA", new Serializable[] {nome__sala}));
 				} catch (IOException e1) {
@@ -158,9 +137,9 @@ public class Lobby extends JFrame {
 		scrollPane = new JScrollPane();
 		contentPane.add(scrollPane, "cell 1 1 13 1,grow");
 		
-		setTblLobby(new JTable());
-		getTblLobby().setFont(new Font("Trebuchet MS", Font.ITALIC, 13));
-		getTblLobby().setModel(new DefaultTableModel(
+		tblLobby = new JTable();
+		tblLobby.setFont(new Font("Trebuchet MS", Font.ITALIC, 13));
+		tblLobby.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null},
 			},
@@ -168,7 +147,8 @@ public class Lobby extends JFrame {
 				"Nome", "Nº Online"
 			}
 		));
-		getTblLobby().getColumnModel().getColumn(0).setPreferredWidth(347);
+		tblLobby.getColumnModel().getColumn(0).setPreferredWidth(347);
+		scrollPane.setViewportView(tblLobby);
 		
 		JButton btnCriarNovaSala = new JButton("Criar nova sala");
 		btnCriarNovaSala.addActionListener(new ActionListener() {
@@ -183,107 +163,25 @@ public class Lobby extends JFrame {
 		
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{tblLobby, btnAtualizar, btnEntrar, btnCriarNovaSala, contentPane, lblNick}));
 		contentPane.add(btnEntrar, "cell 1 2 2 1");
-		
-		
-		
-					/*Lobby frame = new Lobby();
-					frame.setVisible(true);*/
-					
-					//final String IP = SeletorDeIP.IP;
-					
-					/*try {
-						Conexao.conexao = new Socket(IP, 12344);
-						Conexao.transmissor = new ObjectOutputStream(Lobby.conexao.getOutputStream());
-						Conexao.receptor = new ObjectInputStream(Lobby.conexao.getInputStream());
-					} catch (UnknownHostException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}*/
-					
-					/*new Thread() {
-						public void run() {*/
-					/*Thread t = new Thread(new Runnable() {
-						public void run() {
-							Lobby.this.setVisible(false);
-							while (!Controle.seletor_de_nick_fechado)
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-							
-							try {
-								Lobby.transmissor.writeObject(new Comando("INFO_USUARIO", new Serializable[] {SeletorDeNick.nick}));
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							Lobby.this.setVisible(true);
-						}});*/
-						/*}
-					}.start();*/
-					
-					/*Boolean lobby_conexao_roda = true;
-					t_conexao = new Thread () {
-						
-						public void run() {
-							while (lobby_conexao_roda) {
-								System.out.println("Esperando comando...");
-								
-								if (Thread.currentThread().isInterrupted())
-									break;
-								
-								try {
-									Conexao.cmd = (Comando)Conexao.receptor.readObject();
-								} catch (ClassNotFoundException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								
-								System.out.println("Comando recebido: " + Conexao.cmd.getCmd());
-								
-								if (Conexao.cmd.getCmd().equals("LISTA_DE_SALAS")) {
-									Object[] info_salas = (Object[])Conexao.cmd.getComplementos();
-									DefaultTableModel tblLobby_model = (DefaultTableModel) Lobby.this.tblLobby.getModel();
-									
-									int rowCount = tblLobby_model.getRowCount();
-									//Remove rows one by one from the end of the table
-									for (int i = rowCount - 1; i >= 0; i--) {
-										tblLobby_model.removeRow(i);
-									}
-									
-									for (Object linha : info_salas) {
-										String nome_sala = (String)((Object[])linha)[0];
-										int qtd_sala = (int)((Object[])linha)[1];
-										tblLobby_model.addRow(new Object[] {nome_sala, qtd_sala});
-									}
-								}
-							}
-						}
-					};
-					t_conexao.start();*/
-					
-				/*} catch (Exception e) {
-					e.printStackTrace();
-				}
+	}
+	
+	public void processarComando(Comando cmd) {
+		if (cmd.getCmd().equals("LISTA_DE_SALAS")) {
+			
+			Object[] info_salas = (Object[])cmd.getComplementos();
+			DefaultTableModel tblLobby_model = (DefaultTableModel) tblLobby.getModel();
+			
+			int rowCount = tblLobby_model.getRowCount();
+			//Remove rows one by one from the end of the table
+			for (int i = rowCount - 1; i >= 0; i--) {
+				tblLobby_model.removeRow(i);
 			}
-		});
-		t.start();*/
-	}
-
-	public JTable getTblLobby() {
-		return tblLobby;
-	}
-
-	public void setTblLobby(JTable tblLobby) {
-		this.tblLobby = tblLobby;
-		scrollPane.setViewportView(tblLobby);
+			
+			for (Object linha : info_salas) {
+				String nome_sala = (String)((Object[])linha)[0];
+				int qtd_sala = (int)((Object[])linha)[1];
+				tblLobby_model.addRow(new Object[] {nome_sala, qtd_sala});
+			}
+		}
 	}
 }

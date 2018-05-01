@@ -137,7 +137,7 @@ public class ClienteApp extends JFrame {
 		ActionListener btnEnviar_Click = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!txtMensagem.getText().isEmpty()) {
-					String destinatario = (String)ClienteApp.this.getComboBox().getSelectedItem();
+					String destinatario = (String)ClienteApp.this.comboBox.getSelectedItem();
 					String strMensagem = txtMensagem.getText();
 					
 					txtMensagem.setText("");
@@ -176,8 +176,8 @@ public class ClienteApp extends JFrame {
 		panel_1.add(lblDestinatrio);
 		
 		setComboBox(new JComboBox());
-		getComboBox().setModel(new DefaultComboBoxModel(new String[] {"Todos"}));
-		panel_1.add(getComboBox());
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Todos"}));
+		panel_1.add(comboBox);
 		
 		JButton btnEnviar = new JButton("Enviar");
 		btnEnviar.addActionListener(btnEnviar_Click);
@@ -187,7 +187,7 @@ public class ClienteApp extends JFrame {
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		
 		setTxtrChat(new JTextArea());
-		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{panel, lblNomeDaSala, getTxtrChat(), txtMensagem, getComboBox(), btnEnviar, getContentPane(), panel_1, lblMensagem, lblDestinatrio}));
+		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{panel, lblNomeDaSala, txtrChat, txtMensagem, comboBox, btnEnviar, getContentPane(), panel_1, lblMensagem, lblDestinatrio}));
 		
 		/*new Thread(new Runnable() {
 			public void run() {
@@ -334,25 +334,74 @@ public class ClienteApp extends JFrame {
 	}
 	
 	void mostrarMensagem(String remetente, String mensagem, Boolean privado) {
-		this.getTxtrChat().append((privado ? "* " : "") + remetente + ": " + mensagem + "\n");
-	}
-
-	public JComboBox getComboBox() {
-		return comboBox;
+		this.txtrChat.append((privado ? "* " : "") + remetente + ": " + mensagem + "\n");
 	}
 
 	public void setComboBox(JComboBox comboBox) {
 		this.comboBox = comboBox;
 	}
 
-	public JTextArea getTxtrChat() {
-		return txtrChat;
-	}
-
 	public void setTxtrChat(JTextArea txtrChat) {
 		this.txtrChat = txtrChat;
 		scrollPane.setViewportView(txtrChat);
 		txtrChat.setEditable(false);
+	}
+	
+	public void processarComando(Comando cmd) {
+		if (cmd.getCmd().equals("MENSAGEM_INDIVIDUAL")) {
+			String remetente = (String)cmd.getComplementos()[0];
+	    	String strMsg = (String)cmd.getComplementos()[1];
+	    	Boolean privado = (Boolean)cmd.getComplementos()[2];
+	    	
+	    	this.mostrarMensagem(remetente, strMsg, privado);
+		}
+		else
+		if (cmd.getCmd().equals("LISTA_DE_NICKS")) {
+			String[] nicks = (String[])cmd.getComplementos()[0];
+	    	
+			for (String nick : nicks)
+				if (!nick.equals(SeletorDeNick.nick))
+					this.comboBox.addItem(nick);
+		}
+		else
+		if (cmd.getCmd().equals("SERVIDOR_ENTROU_USUARIO")) {
+			String nick = (String)cmd.getComplementos()[0];
+			if (!nick.equals(SeletorDeNick.nick))
+				this.comboBox.addItem(nick);
+			this.txtrChat.append("//" + nick + " entrou na sala.\n");
+		}
+		else
+		if (cmd.getCmd().equals("SERVIDOR_USUARIO_SAIU")) {
+			String nick = (String)cmd.getComplementos()[0];
+			this.comboBox.removeItem(nick);
+			this.txtrChat.append("//" + nick + " saiu na sala.\n");
+		}
+		else
+		if (cmd.getCmd().equals("SERVIDOR_NICK_INVALIDO")) {
+			Controle.seletor_de_nick_fechado = false;
+			this.setVisible(false);
+			
+			SeletorDeNick sn = new SeletorDeNick();
+			sn.setVisible(true);
+			
+			while (!(Controle.seletor_de_nick_fechado)) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			try {
+				Conexao.transmissor.writeObject(new Comando ("NICK_USUARIO", new Serializable[] {SeletorDeNick.nick}));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			this.setVisible(true);
+		}
 	}
 
 }
